@@ -80,8 +80,8 @@ FROM product;
 vendor_id field they both have in common, and sorts the result by vendor_name, then market_date. */
 SELECT vendor.vendor_id, vendor_name, vendor_type, vendor_owner_first_name, vendor_owner_last_name, booth_number, market_date
 FROM vendor
-INNER JOIN vendor_booth_assignments
-          ON vendor.vendor_id = vendor_booth_assignments.vendor_id
+INNER JOIN vendor_booth_assignments as vb
+          ON vendor.vendor_id = vb.vendor_id
 ORDER BY vendor_name, market_date;
 
 
@@ -101,12 +101,13 @@ sticker to everyone who has ever spent more than $2000 at the market. Write a qu
 of customers for them to give stickers to, sorted by last name, then first name. 
 
 HINT: This query requires you to join two tables, use an aggregate function, and use the HAVING keyword. */
-SELECT customer_last_name, customer_first_name
+SELECT customer_first_name, customer_last_name, SUM( quantity * cost_to_customer_per_qty) as money_spent
 FROM customer
-INNER JOIN customer_purchases
-          ON customer.customer_id = customer_purchases.customer_id
-GROUP BY customer_last_name, customer_first_name
-HAVING SUM(quantity * cost_to_customer_per_qty) > 2000
+INNER JOIN customer_purchases as cp
+   ON cp.customer_id = customer.customer_id
+GROUP BY customer.customer_id
+HAVING money_spent >= 2000
+ORDER BY customer_last_name, customer_first_name;
 
 
 --Temp Table
