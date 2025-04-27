@@ -58,11 +58,26 @@ Remove any trailing or leading whitespaces. Don't just use a case statement for 
 | Habanero Peppers - Organic | Organic     |
 
 Hint: you might need to use INSTR(product_name,'-') to find the hyphens. INSTR will help split the column. */
+SELECT *
+FROM (
+    SELECT 
+        product_name,
+        CASE 
+            WHEN INSTR(product_name, '-') > 0 THEN 
+                TRIM(SUBSTR(product_name, INSTR(product_name, '-') + 1))
+            ELSE
+                NULL
+        END AS description
+    FROM product
+) AS temp
+WHERE description IN ('Organic', 'Jar') OR description ISNULL;
 
 
 
 /* 2. Filter the query to show any product_size value that contain a number with REGEXP. */
-
+SELECT product_size
+FROM product
+WHERE product_size REGEXP '[0-9]';
 
 
 -- UNION
