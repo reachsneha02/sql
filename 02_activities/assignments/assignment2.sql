@@ -100,6 +100,7 @@ HINT: There are a possibly a few ways to do this query, but if you're struggling
 3) Query the second temp table twice, once for the best day, once for the worst day, 
 with a UNION binding them. */
 
+DROP TABLE IF EXISTS sales_per_day;
 CREATE TEMP TABLE sales_per_day AS 
 SELECT 
 market_date, 
@@ -153,6 +154,7 @@ This table will contain only products where the `product_qty_type = 'unit'`.
 It should use all of the columns from the product table, as well as a new column for the `CURRENT_TIMESTAMP`.  
 Name the timestamp column `snapshot_timestamp`. */
 
+DROP TABLE IF EXISTS product_units;
 CREATE TABLE product_units AS
 SELECT *,
 DATETIME('now') AS snapshot_timestamp
@@ -190,6 +192,29 @@ Third, SET current_quantity = (...your select statement...), remembering that WH
 Finally, make sure you have a WHERE statement to update the right row, 
 	you'll need to use product_units.product_id to refer to the correct row within the product_units table. 
 When you have all of these components, you can run the update statement. */
+
+DROP TABLE IF EXISTS find_last_value;
+CREATE TABLE find_last_value AS
+SELECT quantity, product_id,
+ row_number() OVER (PARTITION BY product_id ORDER BY market_date DESC) AS find_last_quantity
+FROM vendor_inventory;
+
+DROP TABLE IF EXISTS last_quantity;
+CREATE TABLE last_quantity AS
+SELECT product_id, quantity
+FROM find_last_value
+WHERE find_last_quantity = 1;
+
+ALTER TABLE product_units
+ADD current_quantity INT;
+
+UPDATE product_units
+SET current_quantity = COALESCE((
+    SELECT lq.quantity
+    FROM last_quantity lq
+    WHERE lq.product_id = product_units.product_id
+), 0);
+
 
 
 
