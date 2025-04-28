@@ -99,6 +99,27 @@ HINT: There are a possibly a few ways to do this query, but if you're struggling
 "best day" and "worst day"; 
 3) Query the second temp table twice, once for the best day, once for the worst day, 
 with a UNION binding them. */
+DROP TABLE IF EXISTS sales_per_day;
+CREATE TEMP TABLE sales_per_day AS 
+SELECT 
+market_date, 
+sum(quantity * cost_to_customer_per_qty) as total_sales_per_marketdate
+FROM customer_purchases
+GROUP BY market_date;
+
+SELECT 
+market_date, 
+total_sales_per_marketdate as sales
+FROM sales_per_day
+WHERE total_sales_per_marketdate = (SELECT MIN(total_sales_per_marketdate) FROM sales_per_day) 
+
+UNION
+
+SELECT 
+market_date, 
+total_sales_per_marketdate as sales
+FROM sales_per_day
+WHERE total_sales_per_marketdate = (SELECT MAX(total_sales_per_marketdate) FROM sales_per_day)
 
 
 
