@@ -56,6 +56,42 @@ The store wants to keep customer addresses. Propose two architectures for the CU
 ```
 Your answer...
 ```
+Your answer...
+Type 1: Overwrites existing address, no history```
+Architecture :
+
+Column:
+customer_id
+street_address	
+city	
+state	
+postal_code
+country	
+
+ -Whenever a customer changes address → old address is simply overwritten.
+ -No history kept.
+
+Type 2: Keeps history — each change creates a new record.
+Architecture :
+
+Column:
+address_id 
+customer_id
+street_address	
+city	
+state
+postal_code	
+country	
+start_date	
+end_date	
+is_current
+
+Every time a customer moves :
+- insert new record with new address,
+- mark previous address with an end_date and is_current = false.
+- Full address history is preserved.
+
+
 
 ***
 
